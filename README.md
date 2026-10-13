@@ -4,6 +4,8 @@
 **One motor. No cube reorientation. A completely unnecessary amount of mechanical complexity.**
 
 
+**▼ Click the image below to watch Twistopher II autonomously scan and solve a scrambled Rubik's Cube.**
+
 [![Watch Twistopher II Solving a Rubik's Cube](Image/image5.jpeg)](https://youtu.be/CT5pu-lk2kM)
 
 
