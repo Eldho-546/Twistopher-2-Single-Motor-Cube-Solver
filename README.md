@@ -73,180 +73,112 @@ The five-face restriction wasn't part of the original challenge. It was simply a
 
 ## Mechanical Design and CAD
 
-The mechanical design was by far the biggest challenge of Twistopher II, and easily the part of the project I spent the most time on.
+The mechanical design was by far the biggest challenge of Twistopher II, and easily the part of the project I spent the most time on. Almost the entire machine was designed from scratch in Fusion 360, from the gears and transmission mechanisms to the structural supports and cube-holding assemblies.
 
-Almost the entire machine was designed from scratch in Fusion 360, from the gear trains and motor-selection mechanism to the structural supports and cube-holding assemblies.
+The challenge wasn't simply getting a motor to turn a Rubik's Cube face. It was figuring out how to take rotational motion from a single motor, independently distribute it to five different outputs, and then route that motion around the cube to five different faces, all without ever reorienting the cube itself.
 
-The challenge wasn't simply getting a motor to turn a Rubik's Cube face. It was figuring out how to take rotational motion from a single motor, selectively distribute it to five different outputs, and then route that motion around the cube to five different faces.
+*[IMAGE: Full Fusion 360 assembly — isometric view]*
 
-All while keeping the cube in the same orientation.
+### The Gear-Selection Mechanism
 
-**[IMAGE: Full Fusion 360 assembly, preferably an isometric view showing the entire mechanism]**
+The first problem I tackled was figuring out how to get a single NEMA 17 stepper motor to independently drive five different outputs. The key requirement was that when one output was engaged, the other four had to remain stationary.
 
-### 1. Designing the Gear-Selection Mechanism
+After plenty of sketches and abandoned designs, I settled on a mechanism that works somewhat like a gearbox. However, rather than changing the gear ratio, it changes where the motor's rotational power is delivered.
 
-The first problem I tackled was figuring out how to get a single NEMA 17 stepper motor to independently drive five different outputs.
+Four output gears are arranged around a larger central driving gear, but instead of all being positioned on the same plane, each one is offset by a different distance along the motor's axis. The central gear, attached to the stepper motor, can slide forwards and backwards along this axis. By moving to different positions, it engages with one of the four output gears while leaving the others disengaged.
 
-The key requirement was that when one output was engaged, the other four had to remain stationary.
+*[DIAGRAM: Four output gears positioned at different axial depths around the central driving gear. Show the central gear sliding between engagement positions.]*
 
-After plenty of sketches and abandoned CAD designs, I settled on a system that works somewhat like a gearbox, except instead of selecting different gear ratios, it selects where the motor's rotational power is delivered.
+The fifth output, which controls the front face, uses a different approach. Instead of relying on the teeth of the central gear, I added a small hexagonal shaft protruding from its centre. When the stepper moves to its furthest-forward position, this shaft slides into a matching hexagonal socket connected to the front-face transmission. Rotating the motor then drives the front face directly through this coupling.
 
-Four output gears are arranged around a larger central driving gear. However, rather than placing all four on the same plane, each output gear is offset by a different distance along the motor's axis.
+This turned out to be one of my favourite design decisions. It meant I could fit a fifth output into an already crowded mechanism without trying to squeeze in another gear engagement.
 
-The central gear, attached to the stepper motor, moves forwards and backwards along this axis. Depending on its position, it meshes with one of the four output gears.
+*[IMAGE/DIAGRAM: Close-up of the hexagonal shaft-and-socket coupling.]*
 
-This allows the same motor to drive four separate mechanisms without engaging all of them simultaneously.
+The stepper motor is mounted on a linear rail and moved between these engagement positions using an MG995 servo motor. Strictly speaking, this means Twistopher II contains two motors, but only one actually rotates the cube's faces. The servo simply selects which transmission the stepper drives.
 
-**[DIAGRAM 1: Simplified illustration of the central driving gear and four surrounding output gears, each offset along the motor's axis. Use different colours to distinguish the four engagement positions.]**
+### Routing Torque Around the Cube
 
-The fifth output, which controls the front face, uses a completely different approach.
+Once I had five independently selectable outputs, the next challenge was getting their rotational motion to the corresponding cube faces. This turned out to be considerably more complicated than I originally expected.
 
-Instead of relying on gear teeth, I added a small hexagonal shaft protruding from the centre of the stepper's driving gear. When the stepper moves to its furthest-forward position, this shaft slots into a matching hexagonal socket connected to the front-face transmission.
+The output gears were positioned too close together for their shafts to pass around the cube. One possible solution was to make the gears much larger, increasing the distance between their centres, but this would have resulted in an unnecessarily bulky and rather ridiculous-looking mechanism. Instead, I developed a three-gear arrangement that allowed the shafts to be positioned further apart while also incorporating gear reduction.
 
-Rotating the stepper then rotates the front-face mechanism directly through this coupling.
+*[DIAGRAM: Comparison between the original closely spaced shafts and the expanded shaft spacing achieved using the three-gear arrangement.]*
 
-This turned out to be a particularly useful design decision. It meant I could fit the fifth output into an already crowded mechanism without needing another gear to mesh with the central driving gear.
+From there, the rotational motion had to be routed around the cube using combinations of shafts, spur gears and bevel gears. The bevel gears were particularly important because they allowed the direction of rotation to be redirected through changes in shaft orientation.
 
-**[IMAGE / DIAGRAM 2: Side-by-side illustration of the two engagement methods: conventional gear meshing versus the hexagonal shaft-and-socket coupling.]**
+Some transmissions were relatively straightforward, while others became considerably more complicated. The rear-face transmission, for example, routes motion underneath the cube before passing through multiple bevel-gear arrangements to reach the rear face at the correct angle. The bottom-face transmission presented similar challenges.
 
-The stepper motor itself is mounted on a linear rail and repositioned using an MG995 servo motor.
+*[IMAGE: CAD close-up of the rear-face transmission, with arrows showing the path taken by the rotational motion.]*
 
-Strictly speaking, that means the machine contains two motors. However, only the stepper motor actually rotates the cube's faces. The servo simply selects which transmission the stepper drives.
+*[IMAGE: CAD close-up of the bottom-face transmission.]*
 
-### 2. Routing Torque Around the Cube
+Getting all these mechanisms to fit together without interfering with one another required a considerable amount of work in Fusion 360. It was probably the most challenging part of the entire mechanical design, but also one of the most satisfying once everything finally fitted together.
 
-Once I had five independently selectable outputs, the next challenge was getting their rotational motion to the corresponding cube faces.
+### Gear Ratios and Torque
 
-This turned out to be significantly more complicated than I initially anticipated.
+One issue I identified during development was that the NEMA 17 stepper motor had relatively little torque to spare at the operating speed I wanted. Rather than simply guessing whether it would be sufficient, I decided to estimate the torque required to turn a Rubik's Cube face experimentally.
 
-The output gears were positioned too close together for their shafts to pass around the cube. One solution would have been to use much larger gears to increase the spacing, but this would have made the mechanism unnecessarily bulky.
+Using a luggage scale attached to a string, I measured the approximate force required to overcome the cube's turning resistance. From this, I could estimate the required torque using the distance between the applied force and the axis of rotation. The measurements and calculations were fairly crude, but they provided a useful starting point.
 
-Instead, I developed a three-gear transmission arrangement that allowed the drive shafts to be positioned further apart while also providing an opportunity for gear reduction.
+I deliberately aimed to design the transmission to provide roughly twice the estimated torque requirement. This wasn't just to accommodate different cubes, including those with stronger magnets or stiffer turning mechanisms. I also wanted to give the robot some tolerance for things going slightly wrong.
 
-**[DIAGRAM 3: Comparison of the original tightly spaced output shafts and the expanded shaft spacing achieved using the three-gear transmission.]**
+For example, if the stepper missed a few steps, a component loosened, or a cube face ended up slightly misaligned, this could introduce additional resistance during the next move. With very little torque to spare, even a small error could stall the mechanism and ruin the solve. The additional torque margin was intended to help the machine tolerate minor mechanical imperfections rather than immediately giving up. Of course, extra torque isn't a guaranteed solution to a genuinely jammed mechanism, but it provides some useful breathing room.
 
-From there, a combination of shafts, spur gears and bevel gears carries the rotation around the cube to the individual faces.
+The final transmission uses three gear-ratio stages: an initial **3:4 speed increase**, followed by two **2:1 gear reductions**. Together, these produce an overall **3:1 reduction**, meaning that a 270° rotation of the stepper motor results in a 90° rotation of the cube face.
 
-Bevel gears were particularly useful because they allowed me to redirect rotational motion through changes in shaft orientation.
-
-Some of the transmissions are relatively straightforward. Others, particularly those driving the rear and bottom faces, became considerably more complicated.
-
-The rear-face transmission, for example, routes motion underneath the cube before redirecting it through multiple bevel-gear arrangements to reach the required axis of rotation.
-
-**[IMAGE 4: Close-up CAD screenshot of the rear-face transmission, with arrows tracing the route taken by the rotational motion.]**
-
-**[IMAGE 5: Close-up CAD screenshot of the bottom-face transmission.]**
-
-Getting these mechanisms to fit together without interfering with one another required a considerable amount of CAD work, and was probably the most challenging aspect of the entire mechanical design.
-
-### 3. Gear Ratios and Torque Calculations
-
-One issue I identified early on was that the NEMA 17 stepper motor had relatively little torque to spare at the operating speed I wanted.
-
-Rather than simply guessing whether it would be sufficient, I attempted to estimate the torque needed to turn a Rubik's Cube face experimentally.
-
-Using a luggage scale attached to a string, I measured the approximate force required to overcome the cube's turning resistance. From this, I could estimate the required torque using the distance between the applied force and the axis of rotation.
-
-The measurements were fairly crude, but they gave me a useful starting point.
-
-I then designed the transmission to provide approximately twice the estimated torque requirement.
-
-This was partly to accommodate different cubes, particularly those with stronger magnets or stiffer turning mechanisms, but also to provide some tolerance for mechanical imperfections.
-
-For example, if the stepper missed steps or a component became slightly loose, a cube face might end up marginally misaligned. With very little torque to spare, even a small increase in resistance could stall the mechanism and ruin the solve.
-
-The additional torque margin was intended to help the machine tolerate minor resistance and alignment errors, although it obviously cannot guarantee recovery from a genuinely jammed mechanism.
-
-The final transmission uses three gear-ratio stages:
-
-| Stage | Ratio | Effect |
+| Stage | Gear Ratio | Effect |
 |---|---|---|
 | A | 3:4 | 1.33× speed increase |
 | B | 2:1 | 2× speed reduction |
 | C | 2:1 | 2× speed reduction |
 | **Overall** | **3:1** | **3× speed reduction** |
 
-This means a **270° rotation of the stepper motor produces a 90° rotation of the cube face**.
+Ignoring mechanical losses, this also provides a theoretical threefold increase in output torque compared with the stepper motor's input torque.
 
-Ignoring mechanical losses, the overall reduction also increases the available output torque by a factor of three.
+*[DIAGRAM: Three-stage gear transmission showing 270° → 360° → 180° → 90°.]*
 
-**[DIAGRAM 6: Simple three-stage gear-ratio diagram showing 270° → 360° → 180° → 90°.]**
+### Learning From Twistopher I
 
-The gear ratios were therefore not just about getting the correct angular movement. They were also an important part of ensuring the mechanism had sufficient torque to operate reliably.
+Twistopher II was not my first attempt at this project. The original Twistopher was, to put it politely, a bit of a disaster.
 
-### 4. Learning from Twistopher I
+My initial approach was almost entirely trial and error. I'd design a component, 3D print it, test whether it worked, and then design the next part around whatever I'd already made. This worked reasonably well at first, but created increasingly difficult problems as the assembly grew. Every early decision restricted what I could do later, and by the time I was designing the final mechanisms, I'd already committed to so many dimensions and component positions that finding workable solutions became incredibly difficult.
 
-Twistopher II was not my first attempt at this project.
+The original machine suffered from just about everything you could imagine: excessive backlash, insufficient torque, flexing, wobbling, poor gear engagement and mechanisms that would regularly jam. I also relied far too heavily on hot glue, which made disassembly, modifications and repairs unnecessarily difficult.
 
-The original Twistopher was, to put it politely, a bit of a disaster.
+Eventually, I decided to abandon the first design and start again.
 
-My initial approach was almost entirely trial and error: design something, 3D print it, see if it worked, and then design the next part around whatever I'd already made.
+*[IMAGE: Twistopher I — photograph or CAD screenshot of the original unsuccessful prototype.]*
 
-This worked reasonably well at the beginning, but created increasingly difficult problems as the assembly grew.
+The biggest lesson I took from that failure was the importance of developing a sufficiently complete CAD design before committing to manufacturing. I'd heard the phrase "measure twice, cut once" plenty of times before, but this project really made me appreciate what it meant.
 
-Every early design decision restricted the options available later. By the time I reached the final mechanisms, I had already committed to so many dimensions and component positions that finding workable solutions became incredibly difficult.
+For Twistopher II, I approached the design process very differently. Instead of printing each component as soon as I'd designed it, I spent considerably more time developing the full assembly in Fusion 360. I learned a great deal about modelling, component joints, motion links, designing spur and bevel gears, and incorporating imported CAD models of purchased components such as the stepper and servo motors.
 
-The original machine suffered from just about everything you could imagine: excessive backlash, insufficient torque, flexing, wobbling, poor gear engagement and mechanisms that would regularly jam.
+More importantly, I learned how to use CAD to make better engineering decisions before committing to them physically. By the time I started manufacturing the final version, I already had a complete assembly designed on my computer, with the major mechanisms and component positions worked out.
 
-I also relied far too heavily on hot glue, which made disassembly, repairs and modifications unnecessarily difficult.
+This didn't eliminate physical testing, but it made the testing much more purposeful. For components with critical dimensions or tolerances, I printed small test pieces first to check that everything fitted as intended. Only once I was satisfied would I commit to printing the larger components, saving material and avoiding unnecessary reprints.
 
-Eventually, I abandoned the first design and started again.
+The result was a dramatically smoother manufacturing and assembly process, with far fewer major redesigns needed. If there's one lesson I took away from the project, it's that spending more time developing a good CAD design can save an extraordinary amount of time, material and frustration later.
 
-**[IMAGE 7: Photograph or CAD screenshot of the original Twistopher I, ideally compared with Twistopher II.]**
+### Manufacturing and Assembly
 
-The biggest lesson I took from that failure was the importance of developing a sufficiently complete CAD design before committing to manufacturing.
+Almost every custom mechanical component in Twistopher II was 3D printed, including the gears, structural supports, motor mounts and various transmission components. However, there were some parts that made much more sense to purchase rather than manufacture.
 
-For Twistopher II, I approached things very differently.
+The rotating shafts were made from purchased aluminium rods, which I cut to the required lengths. I also used purchased bearings, a NEMA 17 stepper motor and an MG995 servo motor. For the stepper's sliding mechanism, I chose a commercially available linear rail and slider rather than attempting to 3D print one, as a printed sliding system would likely introduce excessive friction and wear.
 
-Rather than printing each new component as soon as I designed it, I spent considerably more time developing the full assembly in Fusion 360.
+Another major improvement over Twistopher I was designing the entire assembly around screws and bolts rather than glue. The finished robot uses approximately 50 nuts and bolts, primarily M3 fasteners, allowing almost every component to be removed and replaced individually.
 
-I worked through the mechanisms, checked clearances, incorporated the relevant components and developed the design until I had a complete assembly that I was confident could actually be built.
+This made testing, maintenance and repairs much easier. If a printed component broke or needed adjusting, I could simply undo the relevant fasteners, replace the part and reassemble the mechanism without damaging everything around it. Very little glue was used, aside from occasional minor repairs.
 
-This didn't eliminate physical testing, but it made the testing much more purposeful.
+*[IMAGE: Partially assembled Twistopher II, showing the shafts, bearings, fasteners and internal mechanisms.]*
 
-For components with particularly critical dimensions or tolerances, I printed small test pieces first. Once I was satisfied that the parts fitted and functioned correctly, I could commit to printing the larger components without wasting unnecessary material.
-
-The result was a dramatically smoother manufacturing and assembly process, with far fewer major redesigns needed.
-
-If there's one lesson I took away from the entire project, it's that spending more time developing a good CAD design can save an extraordinary amount of time, material and frustration later.
-
-### 5. Manufacturing and Assembly
-
-Almost every custom mechanical component in Twistopher II was 3D printed, including the gears, structural supports, motor mounts and various transmission components.
-
-However, some components were better purchased than manufactured.
-
-The main hardware included:
-
-- **NEMA 17 stepper motor** — primary cube-face actuation
-- **MG995 servo motor** — stepper-position selection
-- **Aluminium shafts** — purchased and cut to the required lengths
-- **Bearings** — support for rotating shafts and mechanisms
-- **Linear rail and slider** — smooth, low-friction movement of the stepper assembly
-- **Approximately 50 nuts and bolts** — primarily M3 fasteners
-- **Custom 3D-printed components** — gears, brackets, supports and mechanical assemblies
-
-I deliberately chose to use a purchased linear rail rather than attempting to 3D print the sliding mechanism, as the friction and wear associated with a printed sliding system would have made reliable gear engagement more difficult.
-
-Another major change from Twistopher I was designing the assembly around **screws and bolts rather than glue**.
-
-Almost every component can be removed and replaced individually without damaging the surrounding structure.
-
-This proved particularly useful during testing and maintenance. If a printed component broke or needed adjusting, I could simply remove the relevant fasteners, replace the part and reassemble the mechanism.
-
-Very little glue was used, aside from occasional minor repairs.
-
-**[IMAGE 8: Photograph of the partially assembled robot, showing the shafts, bearings, fasteners and structural components.]**
-
-### 6. A Very Important Design Decision: The Colour Scheme
+### A Very Important Design Decision: The Colour Scheme
 
 A surprising amount of thought also went into the colour scheme.
 
-All moving components, including the gears, were printed in yellow, while the stationary structural components were printed in black.
+All moving components, including the gears, were printed in yellow, while the stationary structural components were printed in black. This made the moving mechanisms easier to distinguish and gave the whole machine a rather satisfying industrial appearance, somewhere between a JCB and a DeWalt power tool.
 
-This made the moving mechanisms easier to distinguish and gave the machine a rather satisfying industrial appearance, somewhere between a JCB and a DeWalt power tool.
-
-There were, however, two slightly less technical reasons.
+There were, however, two slightly less technical reasons for this decision.
 
 Firstly, the original Twistopher I had been orange and white, and after that project's spectacular failure, I decided the colour scheme was clearly cursed.
 
@@ -256,13 +188,11 @@ Unfortunately, I later discovered how YouTube copyright works.
 
 So the robot kept its colour scheme, but the soundtrack didn't quite survive the design process.
 
-**[IMAGE 9: Photograph of the completed yellow-and-black Twistopher II.]**
+*[IMAGE: Completed yellow-and-black Twistopher II.]*
 
-### Final Thoughts on the Mechanical Design
+### Final Thoughts
 
-Of everything I worked on throughout this project, the mechanical design is probably what I'm most proud of.
-
-Twistopher II was easily one of the most complicated things I'd attempted to design from scratch, and it pushed my understanding of CAD, gears, mechanical transmissions, tolerances and manufacturing far beyond where it had been before.
+Of everything I worked on throughout this project, the mechanical design is probably what I'm most proud of. Twistopher II was easily one of the most complicated things I'd attempted to design from scratch, and it pushed my understanding of CAD, gears, mechanical transmissions, tolerances and manufacturing far beyond where it had been before.
 
 More importantly, it completely changed how I approach designing and building physical projects.
 
