@@ -4,7 +4,7 @@
 **One motor. No cube reorientation. A completely unnecessary amount of mechanical complexity.**
 
 
-[![Watch Twistopher II Solving a Rubik's Cube](Image/image5.jpeg)]([https://www.youtube.com/watch?v=VIDEO_ID](https://youtu.be/CT5pu-lk2kM))
+[![Watch Twistopher II Solving a Rubik's Cube](Image/image5.jpeg)](https://youtu.be/CT5pu-lk2kM)
 
 
 ---
