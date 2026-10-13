@@ -200,55 +200,141 @@ What began as an attempt to avoid buying a few extra motors eventually turned in
 
 And somehow, despite making the problem considerably harder than it needed to be, the finished machine actually works.
 
-
-### Design Development
-
-*[Insert CAD screenshots, mechanism diagrams and design iterations]*
-
 ---
+
 
 ## Electronics and Control
 
-*[Insert electronics photograph or wiring diagram]*
+Compared with the mechanical design, the electronics of Twistopher II were relatively straightforward. Most of the components were ones I'd already worked with on previous projects, although this was my first time properly using an ESP32.
 
-This section describes the electronic components, motor-control system and integration between the controller and the mechanical assembly.
+The main controller is an **ESP32 Dev Module**, responsible for controlling a NEMA 17 stepper motor and an MG995 servo motor. The stepper is driven using a **TMC2209 stepper motor driver**, which I chose partly for its quiet operation and partly because I happened to have one left over from an earlier project.
 
-- **Microcontroller:** [To be added]
-- **Motor and driver:** [To be added]
-- **Additional electronics:** [To be added]
+The entire system is powered by a **24V, 3A power supply**. The stepper driver operates from the 24V supply, while a DC-DC buck converter steps the voltage down to 6V for the servo motor. I also added 100µF capacitors across the power inputs of both the stepper driver and servo supply to help with voltage fluctuations.
+
+Everything was assembled using jumper wires and a modified breadboard. The breadboard actually needed modifying because the ESP32 was too wide to conveniently access all its pins using a standard breadboard arrangement. There was no custom PCB involved, although designing one would certainly make the electronics considerably neater.
+
+*[IMAGE: Photograph of the ESP32, TMC2209, buck converter and breadboard wiring.]*
+
+### Motor Control
+
+The ESP32 generates STEP and DIR signals for the TMC2209 driver, allowing it to control the stepper motor's movement and direction.
+
+The servo is responsible for moving the entire stepper assembly along its linear rail. During development, I determined and recorded five specific servo positions, each corresponding to a different gear engagement.
+
+When the ESP32 receives a command to rotate a particular cube face, it first moves the servo to the corresponding position. After a short delay to allow the mechanism to engage, it commands the stepper motor to perform the required rotation.
+
+Because of the overall 3:1 gear reduction, a **270° stepper rotation produces a 90° cube-face turn**, while a 540° rotation produces a 180° turn. Reversing the stepper's direction allows the face to rotate in the opposite direction.
+
+The ESP32 communicates with the computer over a USB serial connection. The USB camera is connected directly to the computer, allowing the PC to handle image processing and solution calculation while the ESP32 handles the physical motor movements.
+
+### Solving the Backlash Problem
+
+One of the most frustrating problems during development was caused by backlash in the 3D-printed gears.
+
+Even with carefully designed components, the printed gears couldn't have perfect tolerances. This meant that once the stepper disengaged from a gear, that gear could rotate slightly within the available backlash, particularly due to vibrations from the moving assembly.
+
+When the stepper later attempted to pass through that gear's engagement position, the teeth might no longer be aligned correctly. Instead of sliding into engagement, the teeth could collide directly with one another.
+
+This was a serious problem. The servo could potentially try to force the stepper assembly through an obstruction, causing the mechanism to jam, the servo to stall, or even the printed structure to crack, something I'd already encountered during the original Twistopher build.
+
+Rather than attempting to eliminate every last bit of backlash mechanically, I developed a solution using the stepper motor itself.
+
+**While moving between gear positions, the stepper rapidly oscillates back and forth through approximately 5°.** This creates a small vibration in the driving gear, allowing its teeth to find a suitable alignment and slip into engagement with the output gears.
+
+Essentially, the motor gives the gears a little shimmy until they cooperate.
+
+This turned out to work extremely well and made switching between the different gear engagements considerably more reliable.
+
+*[DIAGRAM: Two gears with misaligned teeth, followed by the same gears engaging after the stepper's small oscillating movement.]*
+
+This was probably the most interesting electronics-related problem I encountered, even though the underlying issue was mechanical. It was a good example of using software-controlled motor behaviour to compensate for imperfections in a physical mechanism.
 
 ---
+
 
 ## Software
 
-This section covers the software used to control the robot, coordinate mechanical operations and implement the cube-solving process.
+The software for Twistopher II is split between a Python application running on a computer and C++ firmware running on the ESP32, developed using the Arduino IDE.
 
-- **Programming languages:** [To be added]
-- **Control architecture:** [To be added]
+The computer acts as the main brain of the machine. It handles camera input, colour recognition, reconstruction of the scrambled cube, solution calculation and communication with the ESP32.
 
-Source code will be provided in this repository.
+The ESP32 handles the lower-level motor control, receiving commands over USB serial and translating them into servo movements and stepper rotations.
+
+Most of the project's control and scanning software was developed by me, while the cube-solving algorithm itself uses an existing implementation. Later in development, I also used AI assistance to build a graphical interface and help clean up and reorganise parts of the Python code.
+
+### Scanning the Cube
+
+One of the more interesting software challenges came from the fact that Twistopher II uses only a single camera positioned above the cube.
+
+Rather than moving the camera or reorienting the cube, I developed a scanning process that uses sequences of face rotations to bring different coloured facelets into view.
+
+The camera captures the eight visible facelets on the top face. The program then uses a predetermined four-move sequence to reposition other facelets onto that surface, allowing the camera to capture another set of eight colours.
+
+By repeating the scanning sequences, the camera collects colour information for all **48 movable facelets** across six captures.
+
+The software keeps track of how each move changes the positions of the facelets. This allows the detected colours to be mapped back to their original positions, reconstructing the full scrambled state of the cube.
+
+*[DIAGRAM: A Rubik's Cube showing facelets being moved into the camera's field of view, with arrows illustrating the scanning sequence.]*
+
+### An Unexpected Scanning Optimisation
+
+Originally, after completing the scanning sequence, the machine would perform an additional four moves to return the cube to its original scrambled state before beginning the solve.
+
+This worked perfectly well, but it also meant spending several seconds physically moving the cube for no real reason.
+
+Eventually, I realised there was a simpler solution: instead of moving the physical cube back to match the software's representation, why not update the software's representation to match the cube?
+
+The program already knew which moves had been performed during scanning. By accounting for the final four moves, it could calculate the cube's current state and generate a solution directly from there.
+
+This eliminated four unnecessary physical moves and saved approximately three seconds.
+
+A small improvement, but quite a satisfying one.
+
+### Calculating the Solution
+
+Once scanning is complete, the reconstructed cube state is passed to a Rubik's Cube-solving algorithm.
+
+Most conventional solving algorithms assume that all six faces of the cube can be rotated. Twistopher II, however, only has mechanical access to five faces, with the upper face remaining fixed.
+
+Fortunately, Herbert Kociemba, the developer of the well-known Two-Phase Rubik's Cube-solving algorithm, also developed a solver capable of finding solutions while restricting moves on one face.
+
+This made it possible to calculate solutions that the robot could physically execute without needing to drive the sixth face.
+
+Getting the solver working required downloading and generating access to substantial lookup tables, a process that took approximately six hours.
+
+Once configured, the solver could calculate a valid sequence of moves using only the five available faces.
+
+### Executing the Solution
+
+After the solution is calculated, the Python application interprets the move sequence and sends the required commands to the ESP32 over USB serial.
+
+For each move, the ESP32 positions the servo to engage the correct transmission, allows the mechanism to settle, and then rotates the stepper by the required amount.
+
+The process repeats until every move in the solution has been executed.
+
+From the user's perspective, the entire process is automatic. A scrambled cube is placed into the machine, clamped in position, and the Start button is pressed.
+
+The machine then scans the cube, reconstructs its state, calculates a solution and executes the moves without any further intervention.
+
+A typical complete solve takes approximately **30 seconds**, including scanning, calculation and physical execution.
+
+*[DIAGRAM: Overall software workflow — Start → Scanning → Colour Recognition → Cube Reconstruction → Solution Calculation → Serial Commands → Motor Control → Solved Cube.]*
+
+### Software Development
+
+Twistopher II was developed over approximately a year, and the software evolved considerably throughout that time.
+
+The original control logic, scanning process, cube-state tracking and communication with the ESP32 were developed as part of the project, while the actual cube-solving algorithm came from an existing implementation.
+
+Towards the later stages, I also experimented with AI-assisted development to create a graphical user interface and improve the organisation of the Python code.
+
+The GUI wasn't the main engineering challenge of this project, and building interfaces has never been my strongest area, so this was a useful way to make the application easier to operate without spending an unreasonable amount of time on the interface itself.
+
+Overall, the software was a valuable learning experience, particularly in coordinating physical hardware with computer-based processing, maintaining an accurate representation of the cube's state, and solving real mechanical problems through software.
+
 
 ---
 
-## Build and Demonstration
-
-*[Insert photographs of the physical assembly]*
-
-**Demonstration video:** [Link to be added]
-
-This section will document the assembly process, testing, performance and remaining limitations.
-
----
-
-## Project Files
-
-- CAD models and assemblies
-- 3D-printing files
-- Electronic control code
-- Wiring documentation
-- Build photographs and demonstrations
-
----
 
 ## Future Development
 
