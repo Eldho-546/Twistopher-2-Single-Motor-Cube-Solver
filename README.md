@@ -3,7 +3,7 @@
 
 **One motor. No cube reorientation. A completely unnecessary amount of mechanical complexity.**
 
-*[Insert photograph of the completed robot or CAD assembly here]*
+![Twistopher II](Image/image5.jpeg)
 
 ---
 
