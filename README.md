@@ -11,35 +11,64 @@
 
 ---
 
+
 ## Overview
 
-Twistopher II is a custom-designed Rubik's Cube-solving robot built around two unusual constraints: it must operate using a single motor, and it must never reorient the cube.
+I'd wanted to build a Rubik's Cube-solving robot for quite a while, but by the time I had the tools and experience to attempt one, there were already countless designs online. I wanted to try something different.
 
-Unlike conventional Rubik's Cube-solving robots, Twistopher II was never intended to break speed records or maximise efficiency.
+The idea for Twistopher II came from rummaging through my electronics box and discovering that I had exactly one usable stepper motor. Rather than spending money on more motors, I wondered whether I could build an entire Rubik's Cube solver around just one.
 
-Instead, the project explores how absurdly complicated a solution can become when you impose unnecessary yet creatively inspiring constraints.
+After looking into existing single-motor designs, I found that they typically worked by reorienting the cube to present different faces to the same motor. So, naturally, I decided to make things even harder: **what if the cube couldn't be reoriented at all?**
 
-These restrictions offer no inherent practical advantage. In fact, they make the engineering challenge considerably harder. But that's precisely the point.
+After plenty of sketches, CAD iterations and abandoned ideas, I settled on a gearbox-like mechanism that allows a single stepper motor to selectively drive five of the cube's six faces. A servo moves the stepper between different gear engagements, while an arrangement of shafts, gears and bevel gears carries the rotation to each face. The sixth face remains fixed.
 
-The result is an unconventional electromechanical design that prioritises mechanical ingenuity, creative problem-solving and experimentation over outright performance.
+Of course, this technically involves two motors, but only **one motor actually rotates the cube's faces**. The servo simply selects where that motor's torque is delivered.
 
----
+The finished machine is fully autonomous. Place a scrambled cube inside, press a button, and it scans the cube using a camera, reconstructs its state, calculates a solution using a five-face variant of Kociemba's two-phase algorithm, and executes the moves. Approximately 30 seconds later, you have a solved Rubik's Cube.
+
+The project ended up being far more mechanically complicated than simply buying a few extra motors, which was rather the point. But it also became an opportunity to push my CAD, mechanical design, electronics and programming skills much further than I'd originally anticipated.
+
+**Twistopher II isn't an attempt to build the fastest Rubik's Cube solver. It's an attempt to see how far an unnecessarily constrained idea can be taken — and actually make it work.**
+
 
 ## Design Constraints
 
-The project was developed around two fundamental restrictions:
+Twistopher II was designed around three main constraints, two of which were entirely self-imposed, and one which was actually quite sensible.
 
-**1. Single-motor operation**
+### 1. Single-Motor Cube Manipulation
 
-All mechanically driven cube manipulation must be achieved using only one motor.
+Only **one stepper motor** could be used to rotate the faces of the Rubik's Cube.
 
-**2. No cube reorientation**
+Other actuators were allowed, provided they didn't directly manipulate the cube. In this case, a servo moves the stepper motor along a rail, allowing it to engage with different gears and selectively drive different faces.
 
-The cube must remain in its original orientation throughout the solving process.
+### 2. No Cube Reorientation
 
-Together, these constraints create a mechanical design challenge that is very different from simply building the fastest possible cube-solving robot.
+The Rubik's Cube must maintain the same overall orientation throughout the entire process, from scanning to solving.
 
----
+Individual faces can rotate, of course, but the cube itself cannot be repositioned or reoriented to give the motor access to different sides.
+
+Combined with the single-motor requirement, this meant finding a way to mechanically distribute rotation from one motor to multiple faces of a stationary cube.
+
+### 3. Ease of Use and Cube Compatibility
+
+Despite the intentionally impractical mechanical constraints, I wanted the robot to be as straightforward to use as possible.
+
+The user should be able to take an ordinary, scrambled Rubik's Cube, place it into the machine, clamp it in position, and press Start.
+
+No modifications to the cube, no special attachments, and no complicated setup.
+
+I also wanted the mechanism to accommodate as many different standard-sized Rubik's Cubes as reasonably possible, rather than requiring a specific cube designed for the robot.
+
+### An Additional Design Decision: Five-Face Operation
+
+One important decision that emerged during development was to leave the top face of the cube mechanically undriven.
+
+This simplified the mechanism considerably and provided an open area for inserting and removing the cube, as well as positioning the camera for scanning.
+
+It also meant that the robot could only rotate five of the six faces, requiring a solving algorithm capable of working within that limitation.
+
+The five-face restriction wasn't part of the original challenge. It was simply a design decision that made the rest of the machine a little less ridiculous to build.
+
 
 ## Mechanical Design and CAD
 
