@@ -87,8 +87,6 @@ After plenty of sketches and abandoned designs, I settled on a mechanism that wo
 
 Four output gears are arranged around a larger central driving gear, but instead of all being positioned on the same plane, each one is offset by a different distance along the motor's axis. The central gear, attached to the stepper motor, can slide forwards and backwards along this axis. By moving to different positions, it engages with one of the four output gears while leaving the others disengaged.
 
-*[DIAGRAM: Four output gears positioned at different axial depths around the central driving gear. Show the central gear sliding between engagement positions.]*
-
 The fifth output, which controls the front face, uses a different approach. Instead of relying on the teeth of the central gear, I added a small hexagonal shaft protruding from its centre. When the stepper moves to its furthest-forward position, this shaft slides into a matching hexagonal socket connected to the front-face transmission. Rotating the motor then drives the front face directly through this coupling.
 
 This turned out to be one of my favourite design decisions. It meant I could fit a fifth output into an already crowded mechanism without trying to squeeze in another gear engagement.
@@ -102,8 +100,6 @@ The stepper motor is mounted on a linear rail and moved between these engagement
 Once I had five independently selectable outputs, the next challenge was getting their rotational motion to the corresponding cube faces. This turned out to be considerably more complicated than I originally expected.
 
 The output gears were positioned too close together for their shafts to pass around the cube. One possible solution was to make the gears much larger, increasing the distance between their centres, but this would have resulted in an unnecessarily bulky and rather ridiculous-looking mechanism. Instead, I developed a three-gear arrangement that allowed the shafts to be positioned further apart while also incorporating gear reduction.
-
-*[DIAGRAM: Comparison between the original closely spaced shafts and the expanded shaft spacing achieved using the three-gear arrangement.]*
 
 From there, the rotational motion had to be routed around the cube using combinations of shafts, spur gears and bevel gears. The bevel gears were particularly important because they allowed the direction of rotation to be redirected through changes in shaft orientation.
 
@@ -136,8 +132,6 @@ The final transmission uses three gear-ratio stages: an initial **3:4 speed incr
 
 Ignoring mechanical losses, this also provides a theoretical threefold increase in output torque compared with the stepper motor's input torque.
 
-*[DIAGRAM: Three-stage gear transmission showing 270° → 360° → 180° → 90°.]*
-
 ### Learning From Twistopher I
 
 Twistopher II was not my first attempt at this project. The original Twistopher was, to put it politely, a bit of a disaster.
@@ -169,8 +163,6 @@ The rotating shafts were made from purchased aluminium rods, which I cut to the 
 Another major improvement over Twistopher I was designing the entire assembly around screws and bolts rather than glue. The finished robot uses approximately 50 nuts and bolts, primarily M3 fasteners, allowing almost every component to be removed and replaced individually.
 
 This made testing, maintenance and repairs much easier. If a printed component broke or needed adjusting, I could simply undo the relevant fasteners, replace the part and reassemble the mechanism without damaging everything around it. Very little glue was used, aside from occasional minor repairs.
-
-*[IMAGE: Partially assembled Twistopher II, showing the shafts, bearings, fasteners and internal mechanisms.]*
 
 ### A Very Important Design Decision: The Colour Scheme
 
@@ -245,8 +237,6 @@ Essentially, the motor gives the gears a little shimmy until they cooperate.
 
 This turned out to work extremely well and made switching between the different gear engagements considerably more reliable.
 
-*[DIAGRAM: Two gears with misaligned teeth, followed by the same gears engaging after the stepper's small oscillating movement.]*
-
 This was probably the most interesting electronics-related problem I encountered, even though the underlying issue was mechanical. It was a good example of using software-controlled motor behaviour to compensate for imperfections in a physical mechanism.
 
 ---
@@ -274,7 +264,7 @@ By repeating the scanning sequences, the camera collects colour information for 
 
 The software keeps track of how each move changes the positions of the facelets. This allows the detected colours to be mapped back to their original positions, reconstructing the full scrambled state of the cube.
 
-*[DIAGRAM: A Rubik's Cube showing facelets being moved into the camera's field of view, with arrows illustrating the scanning sequence.]*
+*[DIAGRAM: Maybe an image of the camera]*
 
 ### An Unexpected Scanning Optimisation
 
