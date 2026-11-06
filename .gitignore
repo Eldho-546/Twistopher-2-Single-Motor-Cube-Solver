@@ -1,0 +1,39 @@
+# Python environments and caches
+__pycache__/
+*.py[cod]
+.venv*/
+.pytest_cache/
+.ruff_cache/
+
+# Local editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Firmware build output
+build/
+*.elf
+*.hex
+*.bin
+
+# Generated solver lookup tables (keep local copies for fast startup)
+/python/five_face_solver/co_classidx
+/python/five_face_solver/co_rep
+/python/five_face_solver/co_sym
+/python/five_face_solver/conj_twist
+/python/five_face_solver/conj_ud_edges
+/python/five_face_solver/fs_classidx
+/python/five_face_solver/fs_rep
+/python/five_face_solver/fs_sym
+/python/five_face_solver/move_corners
+/python/five_face_solver/move_d_edges
+/python/five_face_solver/move_flip
+/python/five_face_solver/move_slice_sorted
+/python/five_face_solver/move_twist
+/python/five_face_solver/move_u_edges
+/python/five_face_solver/move_ud_edges
+/python/five_face_solver/phase1_prun
+/python/five_face_solver/phase2_cornsliceprun
+/python/five_face_solver/phase2_edgemerge
+/python/five_face_solver/phase2_prun
