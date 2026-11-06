@@ -91,7 +91,7 @@ The fifth output, which controls the front face, uses a different approach. Inst
 
 This turned out to be one of my favourite design decisions. It meant I could fit a fifth output into an already crowded mechanism without trying to squeeze in another gear engagement.
 
-![Rubik’s cube solving robot](image/hexagonextrution.png)
+![Rubik’s cube solving robot hexagon ectrusion](image/hexagonextrution.png)
 
 The stepper motor is mounted on a linear rail and moved between these engagement positions using an MG995 servo motor. Strictly speaking, this means Twistopher II contains two motors, but only one actually rotates the cube's faces. The servo simply selects which transmission the stepper drives.
 
