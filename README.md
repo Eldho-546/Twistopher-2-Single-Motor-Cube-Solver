@@ -77,7 +77,7 @@ The mechanical design was by far the biggest challenge of Twistopher II, and eas
 
 The challenge wasn't simply getting a motor to turn a Rubik's Cube face. It was figuring out how to take rotational motion from a single motor, independently distribute it to five different outputs, and then route that motion around the cube to five different faces, all without ever reorienting the cube itself.
 
-*[IMAGE: Full Fusion 360 assembly — isometric view]*
+![Rubik’s cube solving robot](Image/fulliso.png)
 
 ### The Gear-Selection Mechanism
 
